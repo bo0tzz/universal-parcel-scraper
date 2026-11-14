@@ -137,6 +137,8 @@ describe('DHL eCommerce Netherlands parser', () => {
     expect(normalizeDhlEcommerceNlNumber('jvgl 0999 9999 0000 0000 0000')).toBe(NUMBER);
     expect(normalizeDhlEcommerceNlNumber('3SABCD012345678')).toBe('3SABCD012345678');
     expect(normalizeDhlEcommerceNlNumber('JJD9999999980')).toBe('JJD9999999980');
+    expect(normalizeDhlEcommerceNlNumber('mdp0abc0000')).toBe('MDP0ABC0000');
+    expect(() => normalizeDhlEcommerceNlNumber('MDP0ABC00000')).toThrow(InvalidInputError);
     expect(normalizeDhlEcommerceNlNumber('00 0123456 0000000001 2')).toBe('00012345600000000012');
     expect(() => normalizeDhlEcommerceNlNumber('00012345600000000013')).toThrow(InvalidInputError);
     // DHL Paket's own SSCCs stay with DHL Paket; a manufacturer's prefix among or below them is a shipper's.

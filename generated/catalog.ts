@@ -16916,6 +16916,10 @@ export const CARRIER_CATALOG: Readonly<Record<CarrierId, CarrierDefinition>> = {
       {
         "pattern": "^JJD000090\\d{14,16}$",
         "confidence": "high"
+      },
+      {
+        "pattern": "^MDP[DEGKLMNPQRVWXYZ1-9]{8}$",
+        "confidence": "high"
       }
     ]
   },
@@ -58471,7 +58475,7 @@ export const DETECTION_RULE_IDS: Readonly<Record<CarrierId, readonly string[]>> 
   "dex-pk": ["dex-pk-1"],
   "dg-transporte": [],
   "dhl-ecommerce-es": ["dhl-ecommerce-es-1","dhl-ecommerce-es-2","dhl-ecommerce-es-3"],
-  "dhl-ecommerce-nl": ["dhl-ecommerce-nl-1","dhl-ecommerce-nl-2","dhl-ecommerce-nl-3","dhl-ecommerce-nl-4"],
+  "dhl-ecommerce-nl": ["dhl-ecommerce-nl-1","dhl-ecommerce-nl-2","dhl-ecommerce-nl-3","dhl-ecommerce-nl-4","dhl-ecommerce-nl-5"],
   "dhl-ecommerce-pl": ["dhl-ecommerce-pl-1"],
   "dhl-ecommerce-uk": ["dhl-ecommerce-uk-2","dhl-ecommerce-uk-1"],
   "dhl-express": ["dhl-express-waybill","dhl-express-piece","dhl-express-piece-label","dhl-express-piece-label-after"],

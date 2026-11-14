@@ -151,6 +151,46 @@
       "note": "A DHL eCommerce Netherlands tracking page for this number archived by the Wayback Machine. DHL's Dutch tracking returned its delivery in a mailbox."
     },
     {
+      "number": "MDP531MPW19",
+      "role": "shipment",
+      "evidence": "public_shipment_report",
+      "source": {
+        "url": "https://web.archive.org/web/20260428214739/https://my.dhlecommerce.nl/home/tracktrace/MDP531MPW19?role=consumer-receiver&src=dhl-notification-email&utm_campaign=notificatie&utm_content=spa-delivery-reminder-1&utm_medium=email&utm_source=cns",
+        "date": "2026-04-28",
+        "access": "indexed_excerpt",
+        "dateKind": "capture"
+      },
+      "context": {
+        "reportedRole": "MDP code",
+        "assessment": "confirmed"
+      },
+      "expect": {
+        "carrier": "dhl-ecommerce-nl",
+        "confidence": "high"
+      },
+      "note": "A DHL eCommerce Netherlands tracking page for this code archived by the Wayback Machine. DHL's Dutch tracking returned its collection from a parcel station."
+    },
+    {
+      "number": "MDP5LYDY48L",
+      "role": "shipment",
+      "evidence": "public_shipment_report",
+      "source": {
+        "url": "https://web.archive.org/web/20260425101235/https://my.dhlecommerce.nl/home/tracktrace/MDP5LYDY48L?role=consumer-receiver&src=dhl-notification-email&utm_campaign=notificatie&utm_content=refined-non-buspakje&utm_medium=email&utm_source=cns",
+        "date": "2026-04-25",
+        "access": "indexed_excerpt",
+        "dateKind": "capture"
+      },
+      "context": {
+        "reportedRole": "MDP code",
+        "assessment": "confirmed"
+      },
+      "expect": {
+        "carrier": "dhl-ecommerce-nl",
+        "confidence": "high"
+      },
+      "note": "A DHL eCommerce Netherlands tracking page for this code archived by the Wayback Machine. DHL's Dutch tracking returned its delivery."
+    },
+    {
       "number": "3SLRD0007081840",
       "role": "shipment",
       "evidence": "public_shipment_report",

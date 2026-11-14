@@ -248,6 +248,16 @@ describe('continental shipment candidates', () => {
       expect(detectCarrierMatch(neither).candidates).toEqual([]);
     }
   });
+
+  it("reads the Dutch network's MDP codes by their eleven characters and their alphabet", () => {
+    expect(detectCarrierMatch('MDP9ZZZZZZZ')).toMatchObject({ carrier: 'dhl-ecommerce-nl', confidence: 'high', candidates: ['dhl-ecommerce-nl'] });
+    expect(parseTrackingInput('https://my.dhlecommerce.nl/home/tracktrace/MDP9ZZZZZZZ/1234AB'))
+      .toMatchObject({ carrier: 'dhl-ecommerce-nl', confidence: 'high', trackingNumber: 'MDP9ZZZZZZZ' });
+    // The codes hold the digits 1 to 9 and fifteen letters: a zero or another letter makes no MDP code.
+    for (const other of ['MDP0ZZZZZZZ', 'MDPAZZZZZZZ', 'MDP9ZZZZZZ', 'MDP9ZZZZZZZZ']) {
+      expect(detectCarrierMatch(other).candidates).not.toContain('dhl-ecommerce-nl');
+    }
+  });
 });
 
 describe('DHL piece identifiers', () => {

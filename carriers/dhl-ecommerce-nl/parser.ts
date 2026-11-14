@@ -19,13 +19,13 @@ function isShipperSscc(number: string): boolean {
 }
 
 /**
- * The Benelux label families: JVGL and 3S barcodes, the JJD licence plate of
+ * The Benelux label families: JVGL and 3S barcodes, the MDP code, the JJD licence plate of
  * DHL's European road network, and a shipper's SSCC.
  */
 export function normalizeDhlEcommerceNlNumber(raw: string): string {
   const number = raw.trim().toUpperCase().replace(/[\s.-]/g, '');
-  if (!/^(?:JVGL[A-Z0-9]{8,30}|3S[A-Z0-9]{9,18}|JJD[A-Z0-9]{8,30})$/.test(number) && !isShipperSscc(number)) {
-    throw new InvalidInputError(PROVIDER, 'DHL eCommerce Netherlands tracking requires a JVGL, 3S, JJD or SSCC number');
+  if (!/^(?:JVGL[A-Z0-9]{8,30}|3S[A-Z0-9]{9,18}|JJD[A-Z0-9]{8,30}|MDP[A-Z0-9]{8})$/.test(number) && !isShipperSscc(number)) {
+    throw new InvalidInputError(PROVIDER, 'DHL eCommerce Netherlands tracking requires a JVGL, 3S, JJD, MDP or SSCC number');
   }
   return number;
 }

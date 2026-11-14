@@ -48,6 +48,12 @@ Benelux, through the gateway behind its tracking page. German DHL Paket is
   carrier. The gateway shows them on its own `ECOMMERCE` network alone, and a
   plate from abroad with the leg of the network that issued it, such as
   `CDEx` for DHL Paket's or `IBERIA`.
+- An `MDP` code is `MDP` and eight characters from the digits 1 to 9 and the
+  letters `DEGKLMNPQRVWXYZ`. The gateway holds the parcel under the code, with
+  its pre-advice on the `MDP` network and its scans on `ECOMMERCE`, and no
+  other carrier's rule takes the shape, so detection selects this carrier.
+  The adapter takes any eight letters and digits after `MDP` when the carrier
+  is named.
 - It also answers a shipper's SSCC (`00` and eighteen digits with a valid GS1
   check digit), seen on public tracking pages. A valid SSCC names no carrier,
   so detection never offers DHL eCommerce Netherlands for one; the adapter
@@ -65,6 +71,8 @@ Benelux, through the gateway behind its tracking page. German DHL Paket is
 - A DHL `3S` barcode with a four-letter customer code is detected as PostNL;
   the adapter reads it when the carrier is named. A few PostNL barcodes have
   three letters and are detected as DHL.
+- An `MDP` code can come without a digit. Eleven letters are no tracking
+  number, so such a code is not looked up.
 
 ## Testing
 
