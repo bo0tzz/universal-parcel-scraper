@@ -44,7 +44,7 @@ Offices in other states, in states with several clocks, without a state, such as
 exchange, and abroad, where foreign posts' scans come through with their own clocks, are kept as
 local times. 4-72's data gives its offices' wall clocks as UTC times, which the tracker shows on
 Mexico City's clock, six hours before UPU's copies of the same scans, so a scan the tracker places
-in Colombia, by name or UPU office code, is read back onto Bogotá's clock ([clock.ts](clock.ts)). Rows are ordered by their clocks, as the event numbers sometimes put a scan before one
+in Colombia, by country name or a confirmed exchange office, is read back onto Bogotá's clock ([clock.ts](clock.ts)). Rows are ordered by their clocks, as the event numbers sometimes put a scan before one
 made minutes earlier.
 
 Foreign posts' events use the same names, so an arrival abroad is worded as an arrival in Mexico.

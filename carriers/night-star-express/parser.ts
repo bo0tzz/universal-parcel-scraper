@@ -96,15 +96,16 @@ export function parseNightStar(payload: unknown, rawNumber: string, language: Ni
   const waiting = read.filter(({ stage }) => stage !== 'delivered');
   const current = waiting.length
     ? [...waiting].sort((left, right) => (right.scans[0]?.at ?? 0) - (left.scans[0]?.at ?? 0))[0]!
-    : read[0]!;
+    : read.find(item => item.scans[0]?.event === events[0]) ?? read[0]!;
   const stage = current.stage;
   const delivered = stage === 'delivered' ? events.find(event => event.stage === 'delivered') : undefined;
   const levels = new Set(items.map(item => (isRecord(item.sla) ? clean(item.sla.name, 80) : '')));
   const service = levels.size === 1 ? [...levels][0]! : '';
   const extras = { expected_delivery: null, ...(service ? { service_name: service } : {}) };
 
+  const wording = nightStarStatus(current.status)?.[language];
+  const latest = current.scans[0]?.event;
   if (!events.length) {
-    const wording = nightStarStatus(current.status)?.[language];
     if (!stage || !wording) throw new SchemaError(PROVIDER, 'Night Star Express returned a package without a known status');
     return { status: languageStageStatus(stage), current_stage: stage, current_stage_source: 'carrier_map', last_status_text: wording,
       last_update: null, ...extras, summary_only: true, events: [] };
@@ -112,7 +113,7 @@ export function parseNightStar(payload: unknown, rawNumber: string, language: Ni
   return {
     status: stage ? languageStageStatus(stage) : 'unknown',
     ...(stage ? { current_stage: stage, current_stage_source: 'carrier_map' } : {}),
-    last_status_text: events[0]!.description!,
+    last_status_text: latest && latest.stage === stage ? latest.description : wording ?? latest?.description,
     last_update: events[0]!.time ?? null,
     ...extras,
     ...(delivered ? { delivered_at: delivered.time } : {}),

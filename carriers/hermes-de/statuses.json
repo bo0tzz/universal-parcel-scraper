@@ -282,7 +282,7 @@
     },
     {
       "code": "RETURN_TO_SENDER",
-      "stage": "returned",
+      "stage": "exception",
       "confirmedBy": "fixture",
       "firstSeen": "2026-09-08",
       "note": "Returning to sender"
@@ -296,7 +296,7 @@
     },
     {
       "code": "RETURN",
-      "stage": "returned",
+      "stage": "exception",
       "confirmedBy": "official-doc",
       "firstSeen": "2026-09-08",
       "note": "Returning to sender"
@@ -310,7 +310,7 @@
     },
     {
       "code": "RETOURE_SORTED",
-      "stage": "returned",
+      "stage": "exception",
       "confirmedBy": "live",
       "firstSeen": "2026-11-16",
       "note": "The return prepared at a hub for its way back to the sender (Die Retoure wurde in … für den Weiterversand vorbereitet)."

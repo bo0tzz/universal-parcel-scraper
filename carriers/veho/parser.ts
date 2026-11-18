@@ -1,11 +1,12 @@
 import { ChallengeError, IndeterminateError, InvalidInputError, NoHistoryError, NotFoundError, SchemaError } from '../../core/errors/index.js';
+import { leadingScan } from '../../core/result/unstaged.js';
 import type { CarrierEvent, CarrierResult } from '../../core/result/index.js';
 import { withTieOrder } from '../../core/result/order.js';
 import { languageStageStatus, type Stage } from '../../core/status/index.js';
 import { calendarDay, explicitOffsetTime } from '../../core/time/index.js';
 import { clean } from '../../core/transport/text.js';
 import { isRecord } from '../../core/types.js';
-import { vehoEvent } from './status.js';
+import { statusMap, vehoEvent } from './status.js';
 
 export const PROVIDER = 'Veho';
 export const ORIGIN = 'https://track.shipveho.com';
@@ -101,7 +102,7 @@ export function parseVeho(payload: unknown, rawNumber: string): CarrierResult {
   // Newest first, as the reply lists them; events on one clock keep its order.
   const events = scans.sort((left, right) => right.at - left.at || left.index - right.index).map(({ event }) => event);
   withTieOrder(events);
-  const stage = events.find(event => event.stage)?.stage as Stage | undefined;
+  const stage = leadingScan(events, statusMap)?.stage as Stage | undefined;
   const delivered = stage === 'delivered' ? events.find(event => event.stage === 'delivered') : undefined;
   const zone = clean(pkg.row.timeZone, 64) || clean(order.timeZone, 64);
   return {

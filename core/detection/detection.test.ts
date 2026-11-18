@@ -1088,3 +1088,8 @@ describe('checksum rejections', () => {
     }
   });
 });
+
+it('keeps a Swiss Post barcode grouped in two nine-digit blocks', () => {
+  const grouped = '99' + '0'.repeat(7) + ' ' + '1'.repeat(9);
+  expect(parseTrackingInput('https://www.post.ch/swisspost-tracking?formattedParcelCodes=' + encodeURIComponent(grouped)).trackingNumber).toBe(grouped);
+});

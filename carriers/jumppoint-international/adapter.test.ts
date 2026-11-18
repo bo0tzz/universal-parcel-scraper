@@ -88,3 +88,11 @@ it('reads the public corpus reply with all dated international scans', () => {
   expect(Date.parse(result.events![0]!.time!)).toBe(Date.parse(row.statusLogs[0]!.eventDate));
   expect(result.events!.map(event => event.stage)).toEqual(['delivered', 'out_for_delivery', 'in_transit', 'in_transit', 'in_transit', 'in_transit', 'in_transit', 'in_transit', 'in_transit', 'in_transit', 'accepted', 'registered', 'registered']);
 });
+
+it('reports a missing tracking endpoint as a transport failure', async () => {
+  for (const status of [404, 410]) {
+    const fetcher = async () => Response.json({ html: '', tier: 2, statusCode: status, capturedResponses: [] });
+    const tracker = new JumppointInternationalTracker({ trawl: new TrawlClient('http://browser.invalid', fetcher) });
+    await expect(tracker.fetch(NUMBER)).rejects.toMatchObject({ kind: 'transport' });
+  }
+});

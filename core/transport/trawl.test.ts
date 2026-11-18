@@ -25,6 +25,14 @@ describe('trawlEndpoint', () => {
 describe('TrawlClient.scrape', () => {
   const options = { provider: 'TRAWL while fetching UPS', timeoutMs: 1_000 };
 
+  it('omits the configured proxy from serialized service errors', async () => {
+    const client = new TrawlClient('http://browser.invalid', jsonFetcher({}, 503));
+    const error = await client.scrape({ url: 'https://page.invalid', proxy: 'synthetic-proxy-sentinel' }, options).catch(error => error);
+    expect(error.status).toBe(503);
+    expect(error.request.body).toContain('https://page.invalid');
+    expect(JSON.stringify(error)).not.toContain('synthetic-proxy-sentinel');
+  });
+
   it('returns the solved page with cookies and captured responses', async () => {
     const fetcher = jsonFetcher({
       url: 'https://example.test/track', html: '<html/>', tier: 3, statusCode: 200, userAgent: 'UA',

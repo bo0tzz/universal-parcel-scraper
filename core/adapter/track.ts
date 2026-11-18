@@ -6,6 +6,13 @@ import type { UniversalTracker } from '../../providers/universal.js';
 import type { AdapterRegistry, TrackingContext, TrackingInput } from './index.js';
 import { runAdapter } from './run.js';
 
+export function directTrackingNumber(carrier: string, raw: string): string {
+  if (raw.includes('-') && (carrier === 'tforce-logistics' || carrier === 'time-matters')) {
+    return raw.toUpperCase().replace(/[\s.]/g, '');
+  }
+  return normalizeTrackingNumber(raw);
+}
+
 /**
  * One carrier lookup, leaving provider selection and scheduling to the consumer.
  * The adapter gets the normalized number, as from `createTracker()`: a number
@@ -19,7 +26,7 @@ export async function trackCarrier(carrier: string, typed: TrackingInput, option
   if (options.budgetMs !== undefined && Number.isNaN(options.budgetMs)) throw new TypeError('Lookup budget must be a number of milliseconds');
   // A budget already spent is a budget failure, whichever adapter would have been asked.
   if (options.budgetMs !== undefined && options.budgetMs <= 0) throw new BudgetExceededError(carrier, options.budgetMs);
-  const input = { ...typed, number: normalizeTrackingNumber(typed.number) };
+  const input = { ...typed, number: directTrackingNumber(carrier, typed.number) };
   const registered = options.registry.for(carrier);
   if (registered) {
     try {

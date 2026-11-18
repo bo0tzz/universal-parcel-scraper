@@ -160,10 +160,10 @@ describe('Hermes Germany', () => {
   it.each([
     ['ATG_OUT_OF_WAREHOUSE', 'registered'],
     ['PARCELSHOP_DROP_OFF', 'accepted'],
-    ['RETURN_TO_SENDER', 'returned'],
+    ['RETURN_TO_SENDER', 'exception'],
     ['RETURN_DELIVERED_TO_SENDER', 'returned'],
     ['RETOURE_DELIVERED', 'returned'],
-    ['RETOURE_SORTED', 'returned'],
+    ['RETOURE_SORTED', 'exception'],
     ['DELIVERY_FAILED', 'failed_attempt'],
     ['READY_FOR_PICKUP', 'ready_for_pickup'],
   ])('does not confuse %s with delivery', (code, stage) => {
@@ -266,9 +266,9 @@ describe('Hermes Germany', () => {
     const reply = (progress: Array<Record<string, unknown>>) =>
       [{ barcode: NUMBER, parcelAttributes: { delivered: true }, parcelProgress: progress }];
     const handedBack = parseHermesGermanyResponse(reply(rows), NUMBER);
-    expect(handedBack).toMatchObject({ status: 'exception', current_stage: 'returned' });
+    expect(handedBack).toMatchObject({ status: 'exception', current_stage: 'exception' });
     expect(handedBack).not.toHaveProperty('delivered_at');
-    expect(handedBack.events?.[0]).toMatchObject({ stage: 'returned', provider_code: 'INTERNATIONAL_DELIVERED' });
+    expect(handedBack.events?.[0]).toMatchObject({ stage: 'exception', provider_code: 'INTERNATIONAL_DELIVERED' });
     const home = parseHermesGermanyResponse(reply([
       ...rows,
       { parcelStatus: 'SORTED', timestamp: '2026-09-15T08:00:00Z' },
@@ -394,7 +394,7 @@ describe('Hermes Germany', () => {
       .toMatchObject({ status: 'delivered', current_stage: 'delivered' });
     // A doorstep or neighbour delivery stays delivered, and the flag never hides a return.
     expect(parseHermesGermanyResponse(inBox('DELIVERED_NEIGHBOUR'), NUMBER)).toMatchObject({ status: 'delivered', current_stage: 'delivered' });
-    expect(parseHermesGermanyResponse(inBox('RETURN_TO_SENDER', { readyForParcelBoxCollection: true }), NUMBER).current_stage).toBe('returned');
+    expect(parseHermesGermanyResponse(inBox('RETURN_TO_SENDER', { readyForParcelBoxCollection: true }), NUMBER).current_stage).toBe('exception');
   });
 
   it('names the ParcelShop that holds the parcel or handed it over, and no other address', () => {

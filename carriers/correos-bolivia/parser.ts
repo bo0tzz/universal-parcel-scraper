@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon';
 import { normalizeTrackingNumber } from '../../core/detection/index.js';
 import { IndeterminateError, InvalidInputError, NoHistoryError, NotFoundError, SchemaError } from '../../core/errors/index.js';
+import { orderComparableScans } from '../../core/result/order.js';
 import type { CarrierResult } from '../../core/result/index.js';
 import { languageStageStatus } from '../../core/status/index.js';
 import { isRecord } from '../../core/types.js';
@@ -43,7 +44,7 @@ export function parseCorreosBolivia(payload: unknown, raw: string): CarrierResul
     || payload.total_registros !== shipment.eventos.length) throw new SchemaError(PROVIDER, 'Correos de Bolivia returned an incomplete history');
   if (!shipment.eventos.length) throw new NoHistoryError(PROVIDER);
   const services = new Set<string>();
-  const events = shipment.eventos.map((row: unknown) => {
+  const listed = shipment.eventos.map((row: unknown) => {
     if (!isRecord(row) || typeof row.codigo !== 'string' || row.codigo.trim().toUpperCase() !== number) {
       throw new IndeterminateError(PROVIDER, 'Correos de Bolivia mixed shipment histories');
     }
@@ -55,6 +56,7 @@ export function parseCorreosBolivia(payload: unknown, raw: string): CarrierResul
     return { local_time: clock(row.created_at), description, provider_code: String(row.codigo_evento),
       ...(location ? { location } : {}), ...(classified ? { stage: classified.stage, stage_source: classified.source } : {}) };
   });
+  const events = orderComparableScans(listed, event => event.location);
   const newest = events[0]!, classified = correosBoliviaStage(newest.description);
   return { status: classified ? languageStageStatus(classified.stage) : 'unknown',
     ...(classified ? { current_stage: classified.stage, current_stage_source: classified.source } : {}),

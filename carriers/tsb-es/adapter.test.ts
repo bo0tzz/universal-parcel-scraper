@@ -127,7 +127,8 @@ describe('TSB guest adapter', () => {
       expect(() => parseTsb(changed(d => { d.num = own; }), NUMBER)).toThrowError(expect.objectContaining({ kind: 'schema' }));
     }
     for (const own of [NUMBER, NUMBER.toLowerCase(), ' tsb 0000001 ', 'TSB-0000001', 'TSB_0000001']) expect(parseTsb(changed(d => { d.num = own; }), NUMBER).events).toHaveLength(5);
-    expect(parseTsb(changed(d => { d.num = 1234567; }), '1234567').events).toHaveLength(5);
+    expect(parseTsb(changed(d => { d.num = 1234567; d.expedicion.numeroExpedicion = d.num; }), '1234567').events).toHaveLength(5);
+    expect(() => parseTsb(changed(d => { d.expedicion.numeroExpedicion = 'OTHER'; d.expedicion.referenciaCliente = 'UNRELATED'; }), NUMBER)).toThrowError(expect.objectContaining({ kind: 'schema' }));
     // Without the echo the shipment must carry the number as its own or as its reference.
     expect(parseTsb(changed(d => { delete d.num; }), NUMBER).events).toHaveLength(5);
     expect(parseTsb(changed(d => { delete d.num; d.expedicion.numeroExpedicion = '0000042'; d.expedicion.referenciaCliente = NUMBER; }), NUMBER).events).toHaveLength(5);

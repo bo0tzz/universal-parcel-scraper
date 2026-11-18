@@ -16,8 +16,8 @@ const CODES: ReadonlyMap<string, Stage> = new Map([
   ['OUT_FOR_DELIVERY', 'out_for_delivery'],
   ['DELIVERED', 'delivered'],
   ['PICKED_UP', 'delivered'],
-  ['RETURNING', 'returned'],
-  ['REFUSED_BY_CUSTOMER', 'returned'],
+  ['RETURNING', 'exception'],
+  ['REFUSED_BY_CUSTOMER', 'exception'],
   ['LOST', 'exception'],
 ]);
 

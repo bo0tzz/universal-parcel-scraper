@@ -1,11 +1,12 @@
 import { DateTime } from 'luxon';
 import { ChallengeError, IndeterminateError, RateLimitedError, SchemaError } from '../../core/errors/index.js';
+import { leadingScan } from '../../core/result/unstaged.js';
 import type { CarrierEvent, CarrierResult } from '../../core/result/index.js';
 import { languageStageStatus } from '../../core/status/index.js';
 import { clean, cleanScalar } from '../../core/transport/text.js';
 import { isRecord } from '../../core/types.js';
 import { isViettelCaptchaError, normalizeViettelPostNumber, PROVIDER } from './parser.js';
-import { viettelPostHistoryStage } from './status.js';
+import { statusMap, viettelPostHistoryStage } from './status.js';
 
 /** The current guest tracker groups dated scans by milestone, rather than by time. */
 export function parseViettelPostHistory(payload: unknown, raw: string): CarrierResult {
@@ -64,7 +65,7 @@ export function parseViettelPostHistory(payload: unknown, raw: string): CarrierR
   }
   if (!events.length) throw new IndeterminateError(PROVIDER, 'Viettel Post lists no dated history');
   events.sort((a, b) => b.local_time!.localeCompare(a.local_time!));
-  const newest = events[0]!, staged = events.find(event => event.stage);
+  const newest = events[0]!, staged = leadingScan(events, statusMap);
   const stage = staged?.provider_code ? viettelPostHistoryStage(staged.provider_code) : undefined;
   const service = typeof shipment.DICH_VU === 'string' ? clean(shipment.DICH_VU, 80) : '';
   return { status: stage ? languageStageStatus(stage) : 'unknown',

@@ -22,7 +22,7 @@ const EVENTS: ReadonlyMap<string, HrxEvent> = new Map<string, HrxEvent>([
   ['scanned_by_partner', { wording: 'Scanned in distribution center', stage: 'in_transit' }],
   ['notified', { wording: 'Ready for pickup - customer notified', stage: 'ready_for_pickup' }],
   ['delivered', { wording: 'Delivered', stage: 'delivered' }],
-  ['customer_returned', { wording: 'Parcel is being returned', stage: 'returned' }],
+  ['customer_returned', { wording: 'Parcel is being returned', stage: 'exception' }],
   ['returned', { wording: 'Returned', stage: 'returned' }],
   ['cancelled', { wording: 'Order is cancelled', stage: 'exception' }],
   ['writeoff', { wording: 'Parcel written off', stage: 'exception' }],

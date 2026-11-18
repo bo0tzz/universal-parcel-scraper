@@ -6,7 +6,7 @@ import type { CarrierEvent, CarrierResult } from '../../core/result/index.js';
 import { lastMovement } from '../../core/result/pickup.js';
 import { languageStageStatus, type Stage } from '../../core/status/index.js';
 import { paddedDate } from '../../core/time/fields.js';
-import { calendarDay, zonedTime } from '../../core/time/index.js';
+import { calendarDay, countryCode, zonedTime } from '../../core/time/index.js';
 import { clean } from '../../core/transport/index.js';
 import { CORREOS_DE_MEXICO_ZONE as ZONE, correosDeMexicoForeignClock } from './clock.js';
 import { correosDeMexicoStage } from './status.js';
@@ -214,8 +214,8 @@ function onCentralTime(location: string): boolean {
  * When the scan happened: on Mexico City's clock for an office on central time, on a foreign post's
  * own for one the tracker shows shifted, else as a local wall clock.
  */
-function clockOf(scan: CorreosDeMexicoScan): Pick<CarrierEvent, 'time'> & { local_time?: string } {
-  const foreign = correosDeMexicoForeignClock(scan.location, scan.wall);
+function clockOf(scan: CorreosDeMexicoScan, colombianRoute: boolean): Pick<CarrierEvent, 'time'> & { local_time?: string } {
+  const foreign = correosDeMexicoForeignClock(scan.location, scan.wall, colombianRoute);
   if (foreign) {
     const placed = zonedTime(foreign.wall, "yyyy-MM-dd'T'HH:mm:ss", foreign.zone);
     if (placed?.iso.startsWith(foreign.wall)) return { time: placed.iso };
@@ -247,6 +247,7 @@ export function correosDeMexicoResult(scans: readonly CorreosDeMexicoScan[], raw
       seen.add(identity);
       return true;
     });
+  const colombianRoute = scans.some(scan => countryCode(scan.location) === 'CO');
   let returning = false;
   const events: CarrierEvent[] = chronological.map((scan) => {
     const classified = correosDeMexicoStage(scan.description);
@@ -254,7 +255,7 @@ export function correosDeMexicoResult(scans: readonly CorreosDeMexicoScan[], raw
     // After the item is sent back, its counter wait and delivery are the sender's.
     const stage = returning && (classified?.stage === 'ready_for_pickup' || classified?.stage === 'delivered')
       ? { stage: 'returned' as const, source: 'carrier_map' } : classified;
-    return { ...clockOf(scan), description: scan.description, ...(scan.location ? { location: scan.location } : {}),
+    return { ...clockOf(scan, colombianRoute), description: scan.description, ...(scan.location ? { location: scan.location } : {}),
       ...(stage ? { stage: stage.stage, stage_source: stage.source } : {}) };
   }).reverse();
 

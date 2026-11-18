@@ -168,10 +168,10 @@ describe('time:matters guest adapter', () => {
     for (const own of ['S0000002', `${NUMBER}1`, `1${NUMBER}`, '', 42, {}]) {
       expect(() => parseTimeMatters(changed(d => { d.orderNumber = own; }), NUMBER)).toThrowError(expect.objectContaining({ kind: 'schema' }));
     }
-    for (const own of [NUMBER, NUMBER.toLowerCase(), ' s 0000001 ', 'S-0000001']) expect(parseTimeMatters(changed(d => { d.orderNumber = own; }), NUMBER).events).toHaveLength(3);
+    for (const own of [NUMBER, NUMBER.toLowerCase(), ' s 0000001 ']) expect(parseTimeMatters(changed(d => { d.orderNumber = own; }), NUMBER).events).toHaveLength(3);
     expect(parseTimeMatters(changed(d => { d.orderNumber = 12345678; }), '12345678').events).toHaveLength(3);
-    // A rebooked order's dash is lost on the way to the adapter and compared without it.
-    expect(parseTimeMatters(changed(d => { d.orderNumber = 'S0000001-2'; }), 'S00000012').events).toHaveLength(3);
+    // A rebooked order is distinct from the undashed spelling.
+    expect(() => parseTimeMatters(changed(d => { d.orderNumber = NUMBER + '-2'; }), NUMBER + '2')).toThrow();
     expect(parseTimeMatters(changed(d => { d.orderNumber = null; }), NUMBER).events).toHaveLength(3);
   });
 
@@ -280,4 +280,11 @@ it('uses the available milestone when arrival lacks the needed clock', () => {
   const result = parseTimeMatters(data, NUMBER);
   expect(result.delivered_at).toBe(time);
   expect(result.events?.[0]?.stage).toBe('delivered');
+});
+
+it('sends the rebooking suffix through the facade', async () => {
+  const number = NUMBER + '-1';
+  const fetcher = vi.fn<typeof fetch>().mockImplementation(async () => response(changed(d => { d.orderNumber = number; })));
+  await createTracker({ fetcher, env: {}, providers: [] }).track({ carrier: 'time-matters', number });
+  expect(String(fetcher.mock.calls[0]![0])).toBe(timeMattersUrl(number));
 });

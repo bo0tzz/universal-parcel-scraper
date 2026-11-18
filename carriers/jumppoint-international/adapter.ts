@@ -93,14 +93,14 @@ export class JumppointInternationalTracker {
       const url = jumppointInternationalUrl(number);
       const page = await this.options.trawl.scrape({ url, skipHttp: true, maxTier: 3, maxTimeout: timeoutMs,
         captureResponses: [JUMPPOINT_INTERNATIONAL_API], settleTimeout: Math.min(timeoutMs, 15_000),
-      }, { provider: PROVIDER, timeoutMs, signal, maxBytes: 6_000_000, requireSolved: false });
+      }, { provider: PROVIDER, timeoutMs, signal, maxBytes: 6_000_000, requireSolved: false, allowHttpStatuses: [404, 410] });
       signal.throwIfAborted();
       if (![2, 3].includes(page.tier) || page.url !== url) throw new TransportError(PROVIDER, 'Jumppoint International left its guest tracker');
+      if ([404, 410].includes(page.statusCode)) throw new TransportError(PROVIDER, 'Jumppoint International tracking is unavailable', { status: page.statusCode });
       const captures = page.capturedResponses.filter(row => boundCapture(row.url, number) && row.status !== 204);
       if (!captures.length) {
         if (page.statusCode === 429) throw new RateLimitedError(PROVIDER);
         if (page.statusCode >= 500) throw new UpstreamHttpError(PROVIDER, page.statusCode);
-        if ([404, 410].includes(page.statusCode)) throw new TransportError(PROVIDER, 'Jumppoint International tracking is unavailable', { status: page.statusCode });
         throw new ChallengeError(PROVIDER, 'Jumppoint International did not capture a whole-number tracking reply');
       }
       if (captures.length > 20) throw new SchemaError(PROVIDER, 'Jumppoint International returned too many replies');

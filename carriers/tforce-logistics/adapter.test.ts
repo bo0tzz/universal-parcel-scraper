@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it, vi } from 'vitest';
+import { createTracker } from '../../facade/index.js';
 import { statusMapAnswer } from '../../core/catalog/statusMaps.js';
 import { NOOP_RECORDER } from '../../core/telemetry/index.js';
 import { adapter, TFORCE_TRACK, tforceLookupUrl, TForceTracker } from './adapter.js';
@@ -94,4 +95,13 @@ describe('TForce Logistics final mile tracker', () => {
     expect(statusMapAnswer({ carrier: 'tforce-logistics', providerCode: null, description: 'Status' }))
       .toMatchObject({ kind: 'intentional_gap' });
   });
+});
+
+it('sends the piece suffix through the facade and requires it in the reply', async () => {
+  const number = 'TF' + '0'.repeat(8) + '-1';
+  const html = RETURNED.replaceAll(NUMBER, number);
+  const fetcher = answering(() => reply(html));
+  await createTracker({ fetcher, env: {}, providers: [] }).track({ carrier: 'tforce-logistics', number });
+  expect(String(fetcher.mock.calls[0]![0])).toBe(tforceLookupUrl(number));
+  expect(() => parseTForce(html.replaceAll(number, number.replace('-', '')), number, NOW)).toThrow();
 });

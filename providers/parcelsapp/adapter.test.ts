@@ -4174,3 +4174,10 @@ describe('ParcelsApp slow lookup recovery', () => {
     expect(fetcher.mock.calls.every(([, init]) => init!.signal!.aborted)).toBe(true);
   });
 });
+
+it('keeps a domestic Mexican town on the domestic relay clock', () => {
+  const result = parseParcelsAppResponse({ carriers: ['Mexico Post'], originCode: 'MX', destinationCode: 'MX',
+    states: [{ date: '2026-11-13T10:00:00Z', status: 'In transit', carrier: 0, location: 'COCULA' }],
+  }, number, identity());
+  expect(result.events![0]).toMatchObject({ time_zone: 'America/Mexico_City', time: '2026-11-13T16:00:00.000Z' });
+});

@@ -87,8 +87,7 @@ export function parsePostaMoldovei(payload: unknown, rawNumber: string): Carrier
     seen.add(identity);
     events.push(event);
   });
-  // Newest first by wall clock, as the page lists them; scans at the same second keep the reply's order.
-  events.sort((left, right) => right.local_time! > left.local_time! ? 1 : right.local_time! < left.local_time! ? -1 : 0);
+  // The service lists scans newest first. Different offices can use different local clocks.
 
   const latest = events[0]!;
   const current = events.find(event => event.stage);

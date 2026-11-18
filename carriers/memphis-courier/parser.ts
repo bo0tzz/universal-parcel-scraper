@@ -1,4 +1,5 @@
 import { ChallengeError, InvalidInputError, NotFoundError, SchemaError, TransportError } from '../../core/errors/index.js';
+import { orderComparableScans } from '../../core/result/order.js';
 import type { CarrierEvent, CarrierResult } from '../../core/result/index.js';
 import { leadingScan } from '../../core/result/unstaged.js';
 import { languageStageStatus, type Stage } from '../../core/status/index.js';
@@ -43,7 +44,7 @@ export function parseMemphisReply(status: number, body: string, rawNumber: strin
   return parseMemphis(payload, rawNumber);
 }
 
-interface Scan { event: CarrierEvent; wall: string; index: number }
+
 
 /** A scan's clock: the service's wall clock, which states an offset only where it ends with one. */
 function clockOf(value: unknown): { local_time: string } | { time: string } | null {
@@ -71,8 +72,8 @@ export function parseMemphis(payload: unknown, rawNumber: string): CarrierResult
   const listed = house.events ?? [];
   if (!Array.isArray(listed) || listed.length > 300 || !listed.every(isRecord)) throw new SchemaError(PROVIDER, 'Memphis Courier returned an invalid scan list');
   const seen = new Set<string>();
-  const scans: Scan[] = [];
-  listed.forEach((item, index) => {
+  const scans: CarrierEvent[] = [];
+  listed.forEach((item) => {
     const clock = clockOf(item.date);
     if (!clock) throw new SchemaError(PROVIDER, 'Memphis Courier returned a scan without a readable clock');
     const description = clean(item.description, 300);
@@ -87,10 +88,9 @@ export function parseMemphis(payload: unknown, rawNumber: string): CarrierResult
     if (seen.has(identity)) return;
     seen.add(identity);
     // The list runs newest first, so an earlier row of the same clock is the later scan.
-    scans.push({ event, wall: 'local_time' in clock ? clock.local_time : clock.time.slice(0, 19), index: listed.length - index });
+    scans.push(event);
   });
-  scans.sort((left, right) => right.wall.localeCompare(left.wall) || right.index - left.index);
-  const events = scans.map(({ event }) => event);
+  const events = orderComparableScans(scans, event => event.time ? 'instant' : 'wall:' + (event.location ?? ''));
 
   const newest = events[0];
   // A delivery stands only while no newer scan may have undone it (`leadingScan`).

@@ -53,6 +53,7 @@ describe('Mandaê parser', () => {
   });
 
   it('lets a finished or troubled order state lead, and the scans otherwise', () => {
+    expect(parseMandae({ ...jtHub, situacaoEncomenda: 'EmDevolucao' }, NUMBER).current_stage).toBe('exception');
     expect(parseMandae({ ...jtHub, situacaoEncomenda: 'DevolvidaParaRemetente' }, NUMBER)).toMatchObject({ status: 'exception',
       current_stage: 'returned', current_stage_source: 'carrier_map', last_status_text: 'Devolvida para remetente' });
     const onTheWay = { ...jtHub, situacaoEncomenda: 'Enviada', historico: scans.slice(1) };
@@ -186,4 +187,12 @@ describe('Mandaê browser adapter', () => {
     expect(await instance.track({ number: PARTNER })).toMatchObject({ status: 'delivered', canonical_tracking_number: NUMBER });
     expect(parseTrackingInput(mandaeTrackingUrl(SYNTHETIC))).toMatchObject({ carrier: 'mandae', trackingNumber: SYNTHETIC, source: 'link' });
   });
+});
+
+it('reports a missing tracking endpoint as a transport failure', async () => {
+  for (const status of [404, 410]) {
+    const fetcher = async () => Response.json({ html: '', tier: 2, statusCode: status, capturedResponses: [] });
+    const tracker = new MandaeTracker({ trawl: new TrawlClient('http://browser.invalid', fetcher) });
+    await expect(tracker.fetch(NUMBER)).rejects.toMatchObject({ kind: 'transport' });
+  }
 });

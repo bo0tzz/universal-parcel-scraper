@@ -1,6 +1,6 @@
 export * from './facade/index.js';
 export * from './core/adapter/index.js';
-export * from './core/adapter/track.js';
+export { trackCarrier } from './core/adapter/track.js';
 export * from './core/runner/index.js';
 export * from './core/telemetry/index.js';
 export * from './core/transport/index.js';

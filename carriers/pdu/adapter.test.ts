@@ -123,3 +123,11 @@ describe('PDU guest adapter', () => {
     }
   });
 });
+
+it('reports a missing tracking endpoint as a transport failure', async () => {
+  for (const status of [404, 410]) {
+    const fetcher = async () => new Response(null, { status });
+    const tracker = new PduTracker({ fetcher });
+    await expect(tracker.fetch(NUMBER)).rejects.toMatchObject({ kind: 'transport' });
+  }
+});

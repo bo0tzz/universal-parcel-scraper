@@ -11,12 +11,12 @@ const absent = () => JSON.parse(readFileSync(new URL('./fixtures/not-found.json'
 const response = (body: unknown, status = 200) => new Response(typeof body === 'string' ? body : JSON.stringify(body), { status });
 
 describe('Correos de Bolivia mobile guest tracking', () => {
-  it('preserves whole-bound events, original order and facility clocks, never capture timestamps', () => {
+  it('orders scans at the same office by its local clock', () => {
     const result = parseCorreosBolivia(fixture(), NUMBER);
     expect(result).toMatchObject({ status: 'in_transit', current_stage_source: 'carrier_map', service_name: 'ORDINARIAS',
-      last_update: null, last_update_local: '2024-05-07T09:59:00' });
+      last_update: null, last_update_local: '2024-05-07T13:30:00' });
     expect(result.events).toHaveLength(3);
-    expect(result.events!.map(e => e.local_time)).toEqual(['2024-05-07T09:59:00', '2024-05-07T08:59:00', '2024-05-07T13:30:00']);
+    expect(result.events!.map(e => e.local_time)).toEqual(['2024-05-07T13:30:00', '2024-05-07T09:59:00', '2024-05-07T08:59:00']);
     expect(result.events!.every(e => e.location === 'FRCDGA - France' && !e.time && !e.time_zone)).toBe(true);
     expect(JSON.stringify(result)).not.toMatch(/2024-05-10|captura|user_id|aviso_pago_qr|sort_at/);
   });
@@ -44,7 +44,7 @@ describe('Correos de Bolivia mobile guest tracking', () => {
   });
   it('retains unmapped wording without inventing a stage and covers observed mappings', () => {
     for (const entry of statuses.entries) expect(correosBoliviaStage(entry.wording)).toEqual({ stage: entry.stage, source: 'carrier_map' });
-    const p = fixture(); p.resultado[0].eventos[0].nombre_evento = 'Aviso particular desconocido';
+    const p = fixture(); p.resultado[0].eventos[2].nombre_evento = 'Aviso particular desconocido';
     expect(parseCorreosBolivia(p, NUMBER).events![0]).not.toHaveProperty('stage');
   });
   it('sends one supplied-transport guest query without tokens and refuses other input before traffic', async () => {
@@ -78,4 +78,10 @@ describe('Correos de Bolivia mobile guest tracking', () => {
     await vi.waitFor(() => expect(fetcher).toHaveBeenCalledOnce()); active.abort(); await expect(pending).rejects.toBeDefined();
     await expect(new CorreosBoliviaTracker({ fetcher }).fetch(NUMBER, { budgetMs: 15 })).rejects.toMatchObject({ kind: expect.stringMatching(/^(?:budget|transport)$/) });
   });
+});
+
+it('preserves source sequence across different office clocks', () => {
+  const payload = fixture();
+  payload.resultado[0].eventos[1].office = 'Another office';
+  expect(parseCorreosBolivia(payload, NUMBER).last_update_local).toBe('2024-05-07T09:59:00');
 });

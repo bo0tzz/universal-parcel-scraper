@@ -4,6 +4,7 @@ import { runAdapter } from '../core/adapter/run.js';
 import { carrierDefinition, carrierTimezone } from '../core/catalog/index.js';
 import { carrierTakesPhoneDigits, carrierTakesPostcode, MissingCarrierInputError, normalizeCarrierInputs, normalizeDeliveryPostcode } from '../core/catalog/inputs.js';
 import { deliveryHandoff, noHistoryHandoff, type DeliveryHandoff } from '../core/catalog/handoff.js';
+import { directTrackingNumber } from '../core/adapter/track.js';
 import { detectCarrierMatch, normalizeTrackingNumber, parseTrackingInput, validTrackingNumber } from '../core/detection/index.js';
 import { BudgetExceededError, IndeterminateError, InputRequiredError, NoHistoryError, plannedEventsOf, writtenAheadClocks, type CarrierErrorKind } from '../core/errors/index.js';
 import { failureHint, type FailureHint } from '../core/errors/hint.js';
@@ -314,7 +315,7 @@ export function createTracker(options: TrackerOptions = {}) {
     }
     const adapter = input.source ? undefined : registry.for(carrier);
     const postcodeCountry = fields.postcode && input.postcodeCountry ? { postcodeCountry: input.postcodeCountry.trim().toUpperCase() } : {};
-    const directInput = { number, postcode: fields.postcode, ...postcodeCountry, trackingUrl: fields.trackingUrl,
+    const directInput = { number: directTrackingNumber(carrier, input.number), postcode: fields.postcode, ...postcodeCountry, trackingUrl: fields.trackingUrl,
       ...(fields.phoneDigits ? { phoneDigits: fields.phoneDigits } : {}), ...language };
     const directBudget = () => Math.min(remaining() + DEADLINE_SLACK_MS, 60_000);
     /** One adapter's lookup on the budget left, its answer finished as `trackCarrier` finishes it. */

@@ -181,3 +181,13 @@ describe('Poșta Moldovei browser adapter', () => {
       .toEqual({ carrier: 'posta-moldovei', number: NUMBER, basis: 'destination' });
   });
 });
+
+it('preserves the feed order across foreign local clocks', () => {
+  const log = customs.shipping_logs[0]!;
+  const result = parsePostaMoldovei({ shipping_logs: [
+    { ...log, created_at: '2026-03-03T09:00:00Z', description: 'Customs inspection', additional_description: 'US' },
+    { ...log, created_at: '2026-03-03T11:00:00Z', description: 'Dispatch', additional_description: 'China' },
+  ] }, NUMBER);
+  expect(result.last_status_text).toBe('Customs inspection');
+  expect(result.events![0]!.location).toBe('US');
+});

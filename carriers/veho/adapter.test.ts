@@ -413,3 +413,9 @@ describe('Veho adapter', () => {
     for (const number of ['VH199999999980', 'VEHOATL000021976']) expect(detectCarrierMatch(number).candidates).toContain('veho');
   });
 });
+
+it('withdraws delivery after an unmapped movement', () => {
+  const result = parseVeho(changed(order => { order.packages[0].eventLog.unshift({ operation: 'DeliveryRevoked', timestamp: '2030-01-01T09:00:00Z' }); }), NUMBER);
+  expect(result.status).toBe('unknown');
+  expect(result.delivered_at).toBeUndefined();
+});

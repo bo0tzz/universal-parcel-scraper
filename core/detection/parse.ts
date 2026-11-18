@@ -13,6 +13,7 @@ import { TRACKING_LINK_RULES, matchesDomain, type TrackingLinkRule } from '../ca
 import { ALTERNATIVE_WORDS, candidateScan, isDateToken, keywordNumberInText, recognizedNumberInScan } from './candidates.js';
 import { detectCarrierMatch } from './detect.js';
 import { normalizeTrackingNumber } from './normalize.js';
+import { ruleFits } from './rules.js';
 import { validTrackingNumber } from './valid.js';
 import type { TrackingInputMatch } from './types.js';
 
@@ -75,9 +76,13 @@ function bareTrackingLinks(input: string): string[] {
  * (`formattedParcelCodes=<code>%20<code>` on Swiss Post's links). Groups a number prints apart
  * stay one number: a space parts only codes that are each a whole number of eight characters or more.
  */
-function cleanLinkTrackingNumber(raw: string): string {
+function cleanLinkTrackingNumber(raw: string, carrier: CarrierId): string {
   const first = raw.split(/[,|]/, 1)[0]!.trim();
   const parts = first.split(/\s+/);
+  if (carrier === 'swiss-post' && parts.length > 1) {
+    const joined = first.replace(/[\s.]/g, '').toUpperCase();
+    if (CARRIER_DEFINITIONS[carrier].detectionRules.some(rule => ruleFits(rule, joined, first))) return first;
+  }
   return parts.length > 1 && parts.every((part) => normalizeTrackingNumber(part).length >= 8 && validTrackingNumber(part)) ? parts[0]! : first;
 }
 
@@ -94,7 +99,7 @@ function numberFromRule(url: URL, rule: TrackingLinkRule): string | undefined {
   const fromBareQuery = rule.query?.exec(decodeURIComponent(url.search.slice(1)))?.[1];
   const fromPath = rule.path?.exec(url.pathname)?.[1];
   const fromFragment = rule.fragment?.exec(decodeURIComponent(url.hash.slice(1)))?.[1];
-  const candidate = cleanLinkTrackingNumber(fromQuery ?? fromBareQuery ?? fromPath ?? fromFragment ?? '');
+  const candidate = cleanLinkTrackingNumber(fromQuery ?? fromBareQuery ?? fromPath ?? fromFragment ?? '', rule.carrier);
   return validTrackingNumber(candidate) ? candidate : undefined;
 }
 

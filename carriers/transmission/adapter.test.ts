@@ -1,3 +1,4 @@
+import { hasPrivateDeliveryDetails } from '../../core/status/index.js';
 import { readFileSync } from 'node:fs';
 import { describe, expect, it, vi } from 'vitest';
 import { recognitionAskedCarriers } from '../../core/catalog/recognition.js';
@@ -184,6 +185,7 @@ describe('TransMission tracking adapter', () => {
   it('keeps the name of whoever took the parcel in a scan, staged by the words before it', () => {
     const signed = fixture('delivered').replace(/<td>Bezorgd<\/td>/g, '<td>Bezorgd - ontvangen door Voorbeeldnaam</td>');
     const result = parseTransmissionPage(signed, DELIVERED);
+    expect(hasPrivateDeliveryDetails(result.events![0]!.description ?? '')).toBe(true);
     expect(result.events![0]).toMatchObject({ description: 'Bezorgd - ontvangen door Voorbeeldnaam', stage: 'delivered' });
     expect(result.events!.filter((event) => event.stage === 'delivered')).toHaveLength(1);
   });

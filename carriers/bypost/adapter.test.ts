@@ -68,7 +68,7 @@ describe('Bypost guest adapter', () => {
       d.packages.push({ number: 'BYPKOLLI0000002', status: 'DELIVERED', weight_kg: 1.1, events: [scan('DELIVERED', '2026-03-04T09:00:00+01:00')] });
     });
     const waiting = parseBypost(partly, NUMBER);
-    expect(waiting).toMatchObject({ current_stage: 'ready_for_pickup', weight_kg: 3.5, last_status_text: 'Levert' });
+    expect(waiting).toMatchObject({ current_stage: 'ready_for_pickup', weight_kg: 3.5, last_status_text: 'Klar for henting' });
     expect(waiting.delivered_at).toBeUndefined();
     expect(waiting.pickup_point).toBeUndefined();
     expect(waiting.events).toHaveLength(5);

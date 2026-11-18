@@ -57,3 +57,12 @@ describe('Viettel Post current guest history', () => {
     expect(statusMapAnswer({ carrier: 'viettel-post', providerCode: '501', description: 'Phát thành công' })).toMatchObject({ stage: 'delivered' });
   });
 });
+
+it('withdraws delivery after an unmapped movement', () => {
+  const data = historyFixture();
+  const row = data.data[0]!.TRACKING_ORDERS.flatMap(group => group.TRACKINGS).find(scan => scan.TRANG_THAI === 202)!;
+  Object.assign(row, { TRANG_THAI: 999, GHI_CHU: 'Shipment returned to sender' });
+  const result = parseViettelPostHistory(data, HISTORY_NUMBER);
+  expect(result.status).toBe('unknown');
+  expect(result.delivered_at).toBeUndefined();
+});

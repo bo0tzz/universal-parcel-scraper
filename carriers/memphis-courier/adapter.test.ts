@@ -160,3 +160,12 @@ describe('Memphis Courier guest adapter', () => {
     for (const number of [NUMBER, 'm 9999991 mia']) expect(normalizeMemphisNumber(` ${number} `)).toBe(NUMBER);
   });
 });
+
+it('orders explicit offsets by instant and keeps incomparable scans in sequence', () => {
+  const delivery = scan({ code: 'DLV', date: '2026-03-14T10:00:00-03:00' });
+  const transit = scan({ code: 'TRA', date: '2026-03-14T11:00:00Z' });
+  const read = (events: unknown[]) => parseMemphis(changed(h => { h.events = events; }), NUMBER);
+  expect(read([transit, delivery]).current_stage).toBe('delivered');
+  const wall = scan({ code: 'TRA', date: '2026-03-14T09:00:00' });
+  expect(read([wall, delivery]).current_stage).toBe('in_transit');
+});
