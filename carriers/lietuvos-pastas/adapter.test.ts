@@ -327,3 +327,11 @@ describe('Lietuvos paštas status vocabulary', () => {
     expect(universalCarrierHints(['UNISEND'], 'CC999999999LT').discovered_carrier).toBe('lietuvos-pastas');
   });
 });
+
+it('orders corrected Pakistan scans by their resolved instant', () => {
+  const result = parseLietuvosPastas(edited('abroad', (_payload, events) => {
+    for (const row of events.slice(4)) Object.assign(row, { eventDate: '2026-07-06T14:28:00+03:00', countryCode: 'PK' });
+    Object.assign(events[3]!, { eventDate: '2026-07-06T10:00:00+03:00', countryCode: 'LT' });
+  }), ABROAD);
+  expect(result.last_update).toBe('2026-07-06T10:00:00+03:00');
+});

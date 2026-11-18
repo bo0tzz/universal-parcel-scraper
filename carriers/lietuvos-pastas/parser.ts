@@ -45,7 +45,7 @@ export function normalizeLietuvosPastasNumber(raw: string): string {
 }
 
 interface Clock {
-  /** The instant the feed labels the row with, for ordering. */
+  /** Resolved instant, or the feed ordering key when only a wall clock is available. */
   readonly order: number;
   readonly time?: string;
   readonly localTime?: string;
@@ -74,7 +74,7 @@ function clockOf(value: unknown, country: string | null): Clock | null {
     if (shown) wall = new Date(shown.timestamp).toISOString().slice(0, 19);
   }
   const local = zone ? isoTime(wall, zone) : null;
-  return local ? { order: labeled.timestamp, time: local.iso } : { order: labeled.timestamp, localTime: wall };
+  return local ? { order: local.timestamp, time: local.iso } : { order: labeled.timestamp, localTime: wall };
 }
 
 interface Place {
@@ -171,7 +171,7 @@ export function parseLietuvosPastas(payload: unknown, rawNumber: string): Carrie
     seen.add(identity);
     scans.push({ event, row });
   }
-  // Newest first; rows at the same labeled instant follow the reply's order, reversed.
+  // Newest first; rows at the same sort key follow the reply's order, reversed.
   scans.sort((left, right) => right.row.clock.order - left.row.clock.order || right.row.index - left.row.index);
 
   // Oldest first: a notice keeps the stage of the row before it, and a
