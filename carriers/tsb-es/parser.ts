@@ -75,6 +75,9 @@ export function parseTsb(payload: unknown, rawNumber: string, language: TsbLangu
   }
   if (!shipment) throw new SchemaError(PROVIDER, 'TSB returned no shipment');
 
+  const identifiers = [shipment.numeroExpedicion, shipment.referenciaCliente].filter(id => id != null && id !== '');
+  if (identifiers.length && !identifiers.some(id => folded(id) === folded(number))) throw new SchemaError(PROVIDER, 'TSB returned another shipment');
+
   // The page reads two kinds of event: an international departure, which renames the arrival step, and a delivery position.
   const listed = shipment.eventos ?? [];
   if (!Array.isArray(listed) || listed.length > 500 || !listed.every(isRecord)) throw new SchemaError(PROVIDER, 'TSB returned an invalid event list');
