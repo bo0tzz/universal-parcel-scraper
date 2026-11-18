@@ -98,9 +98,22 @@ describe('Bulgarian Posts tracking adapter', () => {
       ['2026-03-04T09:02:00+02:00', 'ОБРАЗЕЦ 7, Bulgaria', 'ready_for_pickup'],
       ['2026-03-03T13:25:00+02:00', 'ОБРАЗЕЦ 7, Bulgaria', 'in_transit'],
       ['2026-03-03T06:40:00+02:00', 'ПРИМЕРНО-МО, Bulgaria', 'in_transit'],
-      ['2026-03-02T10:14:00+02:00', 'ПРИМЕРНО, Bulgaria', 'in_transit'],
+      ['2026-03-02T10:14:00+02:00', 'ПРИМЕРНО, Bulgaria', 'accepted'],
     ]);
     expect(JSON.stringify(result)).not.toMatch(/999\d/);
+  });
+
+  it('reads an intake after the posting office’s receipt as a movement, beside the record created with it', () => {
+    const result = parseBulgarianPosts({ parcels: [
+      row('2026-05-01T11:48:00', 'BULGARIA, SAMPLE', 'Receive item from customer (Otb)'),
+      row('2026-05-01T11:48:00', 'БЪЛГАРИЯ, 9999  ПРИМЕРНО', 'Създаване'),
+      row('2026-05-01T12:53:00', 'БЪЛГАРИЯ, 9999  ПРИМЕРНО', 'Приемане'),
+    ], bulpost: {} }, DELIVERED);
+    expect(result.events!.map(event => [event.description, event.stage, event.stage_source])).toEqual([
+      ['Приемане', 'in_transit', 'carrier_map'],
+      ['Създаване', 'accepted', 'none'],
+      ['Receive item from customer (Otb)', 'accepted', 'carrier_map'],
+    ]);
   });
 
   it('reads the second visit, the second notice after ten days at the post office, as still waiting for collection', () => {
@@ -112,7 +125,7 @@ describe('Bulgarian Posts tracking adapter', () => {
     ], bulpost: { is_bulpost: false, html: null } }, DOMESTIC);
     expect(result).toMatchObject({ current_stage: 'ready_for_pickup', last_status_text: 'Второ посещение' });
     expect(result.events!.map(event => [event.stage, event.stage_source])).toEqual([
-      ['ready_for_pickup', 'carrier_map'], ['ready_for_pickup', 'carrier_map'], ['failed_attempt', 'carrier_map'], ['in_transit', 'carrier_map'],
+      ['ready_for_pickup', 'carrier_map'], ['ready_for_pickup', 'carrier_map'], ['failed_attempt', 'carrier_map'], ['accepted', 'carrier_map'],
     ]);
   });
 

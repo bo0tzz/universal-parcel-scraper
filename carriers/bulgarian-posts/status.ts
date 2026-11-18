@@ -71,6 +71,11 @@ const NOTICES: ReadonlyMap<string, string> = new Map([
   ['създаване', 'Bulgarian Posts creating its record of the item, beside its intake: not a movement, so it keeps the stage of the scan before it.'],
 ]);
 
+/** Whether a scan's event name is an office's intake, which the posting office's first scan makes the acceptance. */
+export function isBulgarianPostsIntake(name: string): boolean {
+  return normalizeStatusWording(name) === 'приемане';
+}
+
 /** Whether a scan's event name is a notice, which keeps the stage of the scan before it. */
 export function isBulgarianPostsNotice(name: string): boolean {
   return NOTICES.has(normalizeStatusWording(name));

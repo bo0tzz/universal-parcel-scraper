@@ -24,6 +24,9 @@ tracking page makes.
   in the posting country, `(Inb)` in Bulgaria. Bulgarian Posts' domestic scans stay in Bulgarian
   whatever language the page asks for. The event and status codes are always zero, so the event
   name sets the stage, and unknown wording goes to the shared rules.
+- `Приемане` is an office's intake, written at each office an item passes, so it is in transit.
+  The first scan of all is the posting office's, and there it is the acceptance. `Създаване`, the
+  record Bulgarian Posts creates beside an intake, keeps the stage of the scan before it.
 - The page shows a detail beside some scans, such as the status customs recorded. The
   description adds it after a colon. The reply's `note`, which the page does not show, is not
   kept.
