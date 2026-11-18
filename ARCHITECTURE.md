@@ -320,8 +320,8 @@ does not wrap its telemetry a second time. The errors a `StepRecorder` receives 
 explains a failure, the tracking number, postcode or phone digits in a query or body included,
 and no credential where a serializer finds it: `UpstreamHttpError` and `UpstreamNetworkError`
 redact credential headers, an address's user info and fragment, and the query parameters and
-JSON, form or XML body fields named after a key, token, secret, session or signature, and a
-reply's body excerpt is read by name only. `CarrierError.reason` separates expected details,
+JSON, form or XML body fields named after credentials or guest verification proofs. Structured
+proxy fields and incomplete JSON bodies are redacted in full. A reply's body excerpt is read by name only. `CarrierError.reason` separates expected details,
 such as Amazon Shipping's expired history, from transport failures. An inconclusive error
 for the carrier's own answer that it holds no history under the number, an empty result or
 not-found notice, carries `portal_not_found`, so a consumer can tell that answer from an

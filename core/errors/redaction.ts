@@ -23,7 +23,7 @@ function redactedHeaders(headers: Record<string, string>): Record<string, string
 }
 
 /** Query parameters and body fields named after a key, token, secret, password, session, signature or authorization. */
-const CREDENTIAL_NAME = /token|secret|passw|key$|^key|api[-_]?key|session|sig(?:nature)?$|^sig|auth|credential|csrf|xsrf|^x-amz-|^code_verifier$/i;
+const CREDENTIAL_NAME = /captcha|turnstile|token|secret|passw|key$|^key|api[-_]?key|session|sig(?:nature)?$|^sig|auth|credential|csrf|xsrf|^x-amz-|^code_verifier$/i;
 
 /** `name=value` pairs, as a query or a form body writes them, with the credentials' values redacted. */
 function redactedPairs(pairs: string): string {

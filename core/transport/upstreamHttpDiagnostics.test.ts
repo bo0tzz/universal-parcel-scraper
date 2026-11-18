@@ -134,3 +134,16 @@ it('removes proxy credentials from serialized nested and truncated requests', as
     expect(JSON.stringify(error)).not.toContain('sentinel-only');
   }
 });
+
+it('removes guest proofs from query, form and JSON diagnostics', async () => {
+  for (const name of ['captchaCode', 'cf-turnstile-response']) {
+    const pair = name + '=synthetic-proof';
+    for (const body of [pair, JSON.stringify({ [name]: 'synthetic-proof' }), '{"' + name + '":"synthetic-proof']) {
+      const error = await fetchBounded('https://carrier.example/?' + pair, { method: 'POST', body }, {
+        provider: 'Test', timeoutMs: 1000, fetcher: async () => new Response(null, { status: 503 }),
+      }).catch(error => error);
+      expect(error.status).toBe(503);
+      expect(JSON.stringify(error)).not.toContain('synthetic-proof');
+    }
+  }
+});
