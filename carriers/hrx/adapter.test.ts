@@ -178,3 +178,9 @@ it('completes a return only at the returned scan', () => {
   expect(hrxEvent('customer_returned')?.stage).toBe('exception');
   expect(hrxEvent('returned')?.stage).toBe('returned');
 });
+
+it('withdraws delivery after an unmapped movement', () => {
+  const result = parseHrx(changed(d => { d.tracking_events.push({ event: 'delivered', timestamp: '2030-01-01T08:00:00Z' }, { event: 'delivery_revoked', timestamp: '2030-01-01T09:00:00Z' }); }), NUMBER);
+  expect(result.status).toBe('unknown');
+  expect(result.delivered_at).toBeUndefined();
+});

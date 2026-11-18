@@ -1,10 +1,11 @@
 import { ChallengeError, IndeterminateError, InvalidInputError, NoHistoryError, NotFoundError, SchemaError, TransportError } from '../../core/errors/index.js';
+import { leadingScan } from '../../core/result/unstaged.js';
 import type { CarrierEvent, CarrierResult } from '../../core/result/index.js';
 import { languageStageStatus, type Stage } from '../../core/status/index.js';
 import { explicitOffsetTime } from '../../core/time/index.js';
 import { clean } from '../../core/transport/text.js';
 import { isRecord } from '../../core/types.js';
-import { hrxEvent } from './status.js';
+import { statusMap, hrxEvent } from './status.js';
 
 export const PROVIDER = 'HRX';
 export const HRX_MAX_BYTES = 512_000;
@@ -69,7 +70,7 @@ export function parseHrx(payload: unknown, rawNumber: string): CarrierResult {
   }
   // Newest first; events on one clock keep the reply's order, reversed.
   const events = scans.sort((left, right) => right.at - left.at || right.index - left.index).map(({ event }) => event);
-  const stage = events.find(event => event.stage)?.stage as Stage | undefined;
+  const stage = leadingScan(events, statusMap)?.stage as Stage | undefined;
   const delivered = stage === 'delivered' ? events.find(event => event.stage === 'delivered') : undefined;
   const country = clean(payload.delivery_location_country, 8).toUpperCase();
   const weight = weightOf(payload.weight_kg);
