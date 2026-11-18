@@ -102,7 +102,7 @@ it('redacts the credentials of a JSON, cut JSON or XML request body and keeps th
   const bodies: [string, string][] = [
     [JSON.stringify({ number: 'TEST123', auth: { apiKey: 'fixture' }, items: [{ token: 'fixture' }] }),
       '{"number":"TEST123","auth":"[redacted]","items":[{"token":"[redacted]"}]}'],
-    ['{"number":"TEST123","accessToken":"fixture","postcode":"12', '{"number":"TEST123","accessToken":"[redacted]","postcode":"12'],
+    ['{"number":"TEST123","accessToken":"fixture","postcode":"12', '[redacted]'],
     ['<req><number>TEST123</number><ns:ApiKey>fixture</ns:ApiKey></req>', '<req><number>TEST123</number><ns:ApiKey>[redacted]</ns:ApiKey></req>'],
   ];
   for (const [body, kept] of bodies) {
@@ -122,4 +122,15 @@ it('redacts app guest auth and CAPTCHA headers without losing the actual HTTP re
     .catch(error => error);
   expect(error).toMatchObject({ status: 503, request: { headers: { auth: '[redacted]', 'x-recaptcha': '[redacted]', accept: 'application/json' } } });
   expect(JSON.stringify(error)).not.toMatch(/synthetic-guest-secret|synthetic-private-captcha/);
+});
+
+it('removes proxy credentials from serialized nested and truncated requests', async () => {
+  const proxy = 'socks5://fixture:sentinel-only@proxy.invalid';
+  for (const body of [JSON.stringify({ proxy }), JSON.stringify({ routes: [proxy] }), '{"proxy":"' + proxy.split('@')[0]]) {
+    const error = await fetchBounded('https://carrier.example', { method: 'POST', body }, {
+      provider: 'Test', timeoutMs: 1000, fetcher: async () => new Response(null, { status: 503 }),
+    }).catch(error => error);
+    expect(error.status).toBe(503);
+    expect(JSON.stringify(error)).not.toContain('sentinel-only');
+  }
 });

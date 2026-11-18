@@ -42,16 +42,17 @@ function redactedAddress(address: string): string {
   const hash = address.indexOf('#');
   const beforeHash = hash < 0 ? address : address.slice(0, hash);
   const question = beforeHash.indexOf('?');
-  const base = (question < 0 ? beforeHash : beforeHash.slice(0, question)).replace(/^([a-z][a-z\d+.-]*:\/\/)[^/@]*@/i, `$1${REDACTED}@`);
+  const base = (question < 0 ? beforeHash : beforeHash.slice(0, question)).replace(/^([a-z][a-z\d+.-]*:\/\/)[^/]*@/i, `$1${REDACTED}@`);
   const query = question < 0 ? '' : `?${redactedPairs(beforeHash.slice(question + 1))}`;
   return base + query + (hash < 0 ? '' : `#${REDACTED}`);
 }
 
 /** A JSON value with the credential fields' values redacted, at any depth. */
 function redactedJson(value: unknown): unknown {
+  if (typeof value === 'string' && /^[a-z][a-z\d+.-]*:\/\//i.test(value)) return redactedAddress(value);
   if (Array.isArray(value)) return value.map(redactedJson);
   if (value === null || typeof value !== 'object') return value;
-  return Object.fromEntries(Object.entries(value).map(([name, item]) => [name, CREDENTIAL_NAME.test(name) ? REDACTED : redactedJson(item)]));
+  return Object.fromEntries(Object.entries(value).map(([name, item]) => [name, name.toLowerCase() === 'proxy' || CREDENTIAL_NAME.test(name) ? REDACTED : redactedJson(item)]));
 }
 
 /** A request body as sent, with the credential fields of a JSON or form body redacted. */
@@ -59,10 +60,13 @@ function redactedBody(body: unknown): unknown {
   if (typeof body !== 'string') return body === undefined ? body : REDACTED;
   const trimmed = body.trim();
   if (/^[[{]/.test(trimmed)) {
-    try { return JSON.stringify(redactedJson(JSON.parse(trimmed))); } catch { /* A cut JSON body is read as text. */ }
+    try { return JSON.stringify(redactedJson(JSON.parse(trimmed))); } catch {
+      // Truncation can remove the delimiter that identifies a URL's user info.
+      return REDACTED;
+    }
   }
   if (/^[^\s=&]+=[^\s]*$/.test(trimmed)) return redactedPairs(trimmed);
-  // Text, a cut JSON body or XML: a credential's quoted JSON value or element text.
+  // Text or XML: a credential's quoted JSON value or element text.
   return body
     .replace(/("([^"\\]{1,80})"\s*:\s*)"(?:[^"\\]|\\.)*"?/g, (whole, before: string, name: string) => CREDENTIAL_NAME.test(name) ? `${before}"${REDACTED}"` : whole)
     .replace(/<([\w:.-]{1,80})>[^<]*<\/\1>/g, (whole, name: string) => CREDENTIAL_NAME.test(name.replace(/^.*:/, '')) ? `<${name}>${REDACTED}</${name}>` : whole);
