@@ -66,3 +66,18 @@ export function withTieOrder(events: CarrierEvent[]): void {
     for (const [order, event] of (newestFirst ? [...tie].reverse() : tie).entries()) event.tie_order = order;
   }
 }
+
+/** Sort each consecutive run of comparable clocks, preserving source order across its boundaries. */
+export function orderComparableScans<T extends CarrierEvent>(events: T[], clockGroup: (event: T) => string | undefined): T[] {
+  const ordered: T[] = [];
+  for (let start = 0; start < events.length;) {
+    const group = clockGroup(events[start]!);
+    let end = start + 1;
+    while (group !== undefined && end < events.length && clockGroup(events[end]!) === group) end++;
+    const run = events.slice(start, end);
+    run.sort((a, b) => scanTime(b)!.at - scanTime(a)!.at);
+    ordered.push(...run);
+    start = end;
+  }
+  return ordered;
+}
