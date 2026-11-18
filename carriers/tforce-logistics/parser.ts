@@ -1,6 +1,5 @@
 import { load, type CheerioAPI } from 'cheerio';
 import type { Element } from 'domhandler';
-import { normalizeTrackingNumber } from '../../core/detection/index.js';
 import { ChallengeError, IndeterminateError, InvalidInputError, NoHistoryError, NotFoundError, SchemaError } from '../../core/errors/index.js';
 import type { CarrierEvent, CarrierResult } from '../../core/result/index.js';
 import { languageStageStatus, type Stage } from '../../core/status/index.js';
@@ -110,7 +109,7 @@ function rowsOf($: CheerioAPI, html: string, number: string): Element[] {
   const notice = clean(content.children('div').first().text(), 200);
   const missing = NOT_FOUND.exec(notice);
   if (missing) {
-    if (normalizeTrackingNumber(missing[1]!) !== normalizeTrackingNumber(number)) {
+    if (missing[1]!.toUpperCase() !== number) {
       throw new IndeterminateError(PROVIDER, 'TForce Logistics answered for another number');
     }
     throw new NotFoundError(PROVIDER);
@@ -119,7 +118,7 @@ function rowsOf($: CheerioAPI, html: string, number: string): Element[] {
   const found = header.length === 1 ? FOUND.exec(clean($(header[0]).text(), 200)) : null;
   if (!found) invalid('TForce Logistics returned its tracking page without an answer');
   // The tracker matches the whole number; the header names it as asked.
-  if (normalizeTrackingNumber(found[2]!) !== normalizeTrackingNumber(number)) {
+  if (found[2]!.toUpperCase() !== number) {
     throw new IndeterminateError(PROVIDER, 'TForce Logistics answered for another number');
   }
   // An order number or a reference can match several packages, and one alone is no answer for all.

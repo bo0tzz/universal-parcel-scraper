@@ -26,8 +26,8 @@ export function timeMattersUrl(number: string): string {
   return `https://booking.time-matters.com/services/css-orders/orders/${encodeURIComponent(number)}/status/basic`;
 }
 
-// A number reaches the adapter in capitals and without separators, so the reply's own is compared the same way.
-const folded = (value: unknown): string => (typeof value === 'string' || typeof value === 'number' ? String(value).toUpperCase().replace(/[\s.-]/g, '') : '');
+// A rebooking suffix is part of the order identity.
+const folded = (value: unknown): string => (typeof value === 'string' || typeof value === 'number' ? String(value).toUpperCase().replace(/[\s.]/g, '') : '');
 const CHALLENGE_PAGE = /<title>\s*(?:Just a moment|Attention Required)|_cf_chl_opt|captcha|access denied/i;
 const POINT_TYPE = /^[A-Za-z][A-Za-z0-9]{0,63}$/;
 const CANCELLATIONS = new Set(['NONE', 'REQUESTED', 'PROCESSED', 'REJECTED']);

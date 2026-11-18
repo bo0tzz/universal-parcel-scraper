@@ -48,9 +48,7 @@ one: time:matters is asked when it is selected or when a tracking link names it.
 
 ## Limitations
 
-A rebooked order's number reaches the adapter without its dash, and the service knows it only
-with it. Such an order reads as not found: where the dash belonged cannot be told from the
-digits.
+A rebooked order requires its printed dash.
 
 Pickup and delivery addresses and the name a shipment was handed to are never read.
 
