@@ -208,11 +208,13 @@ describe('Correos de México tracking adapter', () => {
       const [event] = correosDeMexicoResult([scan(location, wall)], KNOWN).events!;
       return event!.time ?? `local ${String(event!.local_time)}`;
     };
+    const abroad = correosDeMexicoResult([scan('COLOMBIA'), scan('COEXAM', '2026-11-13T14:15:00')], KNOWN);
+    expect(abroad.events![0]!.time).toBe('2026-11-13T20:15:00-05:00');
     expect(clock('COLOMBIA')).toBe('2026-11-13T20:10:00-05:00');
-    expect(clock('COEXAM', '2026-11-13T14:15:00')).toBe('2026-11-13T20:15:00-05:00');
+    expect(clock('COBOGC', '2026-11-13T14:15:00')).toBe('2026-11-13T20:15:00-05:00');
     expect(clock('CO', '2026-11-13T22:30:00')).toBe('2026-11-14T04:30:00-05:00');
     // Other posts' scans, and a Mexican place of an office code's shape, keep their wall clocks.
-    for (const location of ['PERU', 'PEEXAM', 'Estados Unidos de América', 'COLIMA']) expect(clock(location), location).toBe('local 2026-11-13T14:10:00');
+    for (const location of ['PERU', 'PEEXAM', 'Estados Unidos de América', 'COLIMA', 'COCULA', 'COFAKE']) expect(clock(location), location).toBe('local 2026-11-13T14:10:00');
   });
 
   it('names the counter an item waits at, and the counter it was collected from', () => {

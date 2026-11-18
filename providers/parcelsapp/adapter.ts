@@ -1173,9 +1173,10 @@ function laPosteLetterRelay(name: unknown, date: unknown, location: string, numb
  * as UTC, on Mexico City's clock (carriers/correos-de-mexico/clock.ts): its digits go back to the
  * wall clock before that post's clock reads them.
  */
-function correosDeMexicoRelay(name: unknown, date: unknown, location: string): { zone: string; date: string } | null {
+function correosDeMexicoRelay(name: unknown, date: unknown, location: string, origin: string | null, destination: string | null): { zone: string; date: string } | null {
   if (typeof name !== 'string' || carrierIdFromName(name) !== 'correos-de-mexico') return null;
-  const foreign = correosDeMexicoForeignClock(location, date);
+  if (origin === 'MX' && destination === 'MX') return null;
+  const foreign = correosDeMexicoForeignClock(location, date, origin === 'CO' || destination === 'CO');
   return foreign ? { zone: foreign.zone, date: `${foreign.wall}Z` } : null;
 }
 
@@ -1627,7 +1628,7 @@ function readState(payload: Record<string, unknown>, raw: Record<string, unknown
   const offset = ownOffset(name, raw.date, location);
   const wallClock = WALL_CLOCKS.has(nameKey(name)) && !offset && !uspsLabelRow(name, status);
   const relay = polandPostRelay(name, raw.date, location, number, destination) ?? laPosteLetterRelay(name, raw.date, location, number)
-    ?? correosDeMexicoRelay(name, raw.date, location);
+    ?? correosDeMexicoRelay(name, raw.date, location, origin, destination);
   const pitneyBowes = relay ? undefined : pitneyBowesClock(payload, raw, status, destination);
   const own = relay?.zone ?? (pitneyBowes ? pitneyBowes.zone : carrierClock(payload, raw, number, status, destination));
   // iMile's page writes every scan on the recipient country's clock, wherever it happened, and
