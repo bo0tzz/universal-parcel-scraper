@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { carrierIdFromName } from '../catalog/hints.js';
 import { recognitionCandidates } from '../catalog/recognition.js';
 import { settleRecognition, type RecognitionOutcome } from '../recognition/index.js';
-import { checksumRejections, detectCarrierMatch, parseTrackingInput } from './index.js';
+import { checksumRejections, detectCarrierMatch, normalizeTrackingNumber, parseTrackingInput } from './index.js';
 import { isValidFedEx1DBarcode } from './fedex.js';
 import { isValidUspsPackageBarcode, uspsPackageIdentifier } from './usps.js';
 import { normalizeUSPSNumber, parseUSPSTrackingHtml, uspsTrackingUrl } from '../../carriers/usps/adapter.js';
@@ -874,4 +874,7 @@ describe('JAS Worldwide', () => {
 it('preserves a valid USPS barcode with two identical halves', () => {
   const half = '94' + '0'.repeat(8) + '2';
   expect(uspsPackageIdentifier(half.repeat(2))).toBe(half.repeat(2));
+  // A number pasted twice is still read once, though long rules take the doubled digits.
+  const pasted = '4' + '0'.repeat(10) + '7';
+  expect(normalizeTrackingNumber(pasted.repeat(2))).toBe(pasted);
 });

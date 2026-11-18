@@ -1,6 +1,6 @@
 import { postlogisticsIdentifier } from '../../carriers/postlogistics/number.js';
 import { CARRIER_DEFINITIONS } from '../catalog/definitions.js';
-import { ruleFits } from './rules.js';
+import { restsOnCheckDigit, ruleFits } from './rules.js';
 import { noLimitShipmentNumber } from './noLimit.js';
 import { hasS10CheckDigit } from './s10CheckDigit.js';
 
@@ -13,10 +13,10 @@ import { hasS10CheckDigit } from './s10CheckDigit.js';
  * it reads is an S10 serial's, to tell a typed letter O from a zero.
  */
 
-// A repeated block may itself be a complete barcode. Only shorten it when the
-// whole has no catalog shape and the half has a shape of its own.
-function hasCarrierShape(number: string): boolean {
-  return Object.values(CARRIER_DEFINITIONS).some(carrier => carrier.detectionRules.some(rule => ruleFits(rule, number, number)));
+// A repeated block may itself be a whole barcode, as a USPS one whose halves repeat. A shape with
+// its own prefix and check digit tells it from a number pasted twice; a length or a check digit alone does not.
+function hasCheckedShape(number: string): boolean {
+  return Object.values(CARRIER_DEFINITIONS).some(carrier => carrier.detectionRules.some(rule => rule.checksum !== undefined && !restsOnCheckDigit(rule) && ruleFits(rule, number, number)));
 }
 
 /**
@@ -49,7 +49,7 @@ function hasCarrierShape(number: string): boolean {
 export function normalizeTrackingNumber(raw: string): string {
   const typed = raw.toUpperCase().replace(/[\s.-]/g, '');
   const twice = /^([A-Z0-9]{10,40})\1$/.exec(typed)?.[1];
-  const value = twice && !/^(.)\1*$/.test(twice) && !hasCarrierShape(typed) && hasCarrierShape(twice) ? twice : typed;
+  const value = twice && !/^(.)\1*$/.test(twice) && !hasCheckedShape(typed) ? twice : typed;
   if (/^\(00\)\d{18}$/.test(value)) return `00${value.slice(4)}`;
   const lastDigit = /^(\d{12,})\((\d)\)$/.exec(value);
   if (lastDigit) return `${lastDigit[1]}${lastDigit[2]}`;

@@ -113,7 +113,7 @@ export function parseNightStar(payload: unknown, rawNumber: string, language: Ni
   return {
     status: stage ? languageStageStatus(stage) : 'unknown',
     ...(stage ? { current_stage: stage, current_stage_source: 'carrier_map' } : {}),
-    last_status_text: latest && latest.stage === stage ? latest.description : wording ?? latest?.description,
+    last_status_text: (latest && latest.stage === stage ? latest.description : wording ?? latest?.description) ?? events[0]!.description!,
     last_update: events[0]!.time ?? null,
     ...extras,
     ...(delivered ? { delivered_at: delivered.time } : {}),
