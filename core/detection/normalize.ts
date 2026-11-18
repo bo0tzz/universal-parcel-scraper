@@ -1,4 +1,6 @@
 import { postlogisticsIdentifier } from '../../carriers/postlogistics/number.js';
+import { CARRIER_DEFINITIONS } from '../catalog/definitions.js';
+import { ruleFits } from './rules.js';
 import { noLimitShipmentNumber } from './noLimit.js';
 import { hasS10CheckDigit } from './s10CheckDigit.js';
 
@@ -10,6 +12,12 @@ import { hasS10CheckDigit } from './s10CheckDigit.js';
  * What it is not: no carrier lookup and no provider I/O. The only check digit
  * it reads is an S10 serial's, to tell a typed letter O from a zero.
  */
+
+// A repeated block may itself be a complete barcode. Only shorten it when the
+// whole has no catalog shape and the half has a shape of its own.
+function hasCarrierShape(number: string): boolean {
+  return Object.values(CARRIER_DEFINITIONS).some(carrier => carrier.detectionRules.some(rule => ruleFits(rule, number, number)));
+}
 
 /**
  * Uppercase and strip spaces, dots and dashes (Swiss Post prints 99.34.…).
@@ -41,7 +49,7 @@ import { hasS10CheckDigit } from './s10CheckDigit.js';
 export function normalizeTrackingNumber(raw: string): string {
   const typed = raw.toUpperCase().replace(/[\s.-]/g, '');
   const twice = /^([A-Z0-9]{10,40})\1$/.exec(typed)?.[1];
-  const value = twice && !/^(.)\1*$/.test(twice) ? twice : typed;
+  const value = twice && !/^(.)\1*$/.test(twice) && !hasCarrierShape(typed) && hasCarrierShape(twice) ? twice : typed;
   if (/^\(00\)\d{18}$/.test(value)) return `00${value.slice(4)}`;
   const lastDigit = /^(\d{12,})\((\d)\)$/.exec(value);
   if (lastDigit) return `${lastDigit[1]}${lastDigit[2]}`;

@@ -870,3 +870,8 @@ describe('JAS Worldwide', () => {
     for (const number of ['ATL1000017', '1000000017']) expect(detectCarrierMatch(number).candidates ?? [], number).not.toContain('jas-worldwide');
   });
 });
+
+it('preserves a valid USPS barcode with two identical halves', () => {
+  const half = '94' + '0'.repeat(8) + '2';
+  expect(uspsPackageIdentifier(half.repeat(2))).toBe(half.repeat(2));
+});
