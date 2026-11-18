@@ -18,7 +18,7 @@ A network failure can retry once within the lookup budget.
 
 Event wording, codes, offices and service names are retained. `created_at` is the facility event
 clock. `sort_at` and its UTC capture label describe ingestion, so they cannot supply the event's
-instant or zone. Events keep their returned order and local wall clocks. Payment notices,
+instant or zone. Consecutive events at one office are ordered by its local clock. Office changes keep their source order. Payment notices,
 internal user identifiers and other administrative fields are discarded.
 
 ## Scope and limitations
