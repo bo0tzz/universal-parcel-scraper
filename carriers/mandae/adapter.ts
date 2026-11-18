@@ -45,7 +45,7 @@ export class MandaeTracker {
         if (timeoutMs < 1) throw new BudgetExceededError(PROVIDER, budgetMs);
         const page = await trawl.scrape({ url: mandaeTrackingUrl(number), skipHttp: true, maxTier: 3, maxTimeout: timeoutMs,
           captureResponses: [mandaeApiUrl(number)], settleTimeout: Math.min(timeoutMs, 20_000),
-        }, { provider: 'TRAWL while fetching Mandaê', timeoutMs, signal, maxBytes: 6_000_000, requireSolved: false });
+        }, { provider: 'TRAWL while fetching Mandaê', timeoutMs, signal, maxBytes: 6_000_000, requireSolved: false, allowHttpStatuses: [404, 410] });
         signal.throwIfAborted();
         if (![2, 3].includes(page.tier) || page.statusCode !== 200) throw new TransportError(PROVIDER, 'The browser service did not load Rastreaê');
         // AWS WAF answers the page's first call with a challenge (202); the page's script solves it and asks again.

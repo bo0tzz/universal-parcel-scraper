@@ -187,3 +187,11 @@ describe('Mandaê browser adapter', () => {
     expect(parseTrackingInput(mandaeTrackingUrl(SYNTHETIC))).toMatchObject({ carrier: 'mandae', trackingNumber: SYNTHETIC, source: 'link' });
   });
 });
+
+it('reports a missing tracking endpoint as a transport failure', async () => {
+  for (const status of [404, 410]) {
+    const fetcher = async () => Response.json({ html: '', tier: 2, statusCode: status, capturedResponses: [] });
+    const tracker = new MandaeTracker({ trawl: new TrawlClient('http://browser.invalid', fetcher) });
+    await expect(tracker.fetch(NUMBER)).rejects.toMatchObject({ kind: 'transport' });
+  }
+});

@@ -19,7 +19,7 @@ export class PduTracker {
           'User-Agent': userAgentOf(this.options.userAgent) },
         body: JSON.stringify([number]) }, {
         provider: PROVIDER, timeoutMs: Math.max(1, Math.floor(remainingMs)), maxBytes: PDU_MAX_BYTES,
-        redirect: 'manual', fetcher: this.options.fetcher,
+        redirect: 'manual', allowHttpStatuses: [404, 410], fetcher: this.options.fetcher,
       }).catch(error => { signal.throwIfAborted(); throw error; });
       signal.throwIfAborted();
       if (response.status !== 200) throw new TransportError(PROVIDER, 'PDU tracking service is unavailable', { status: response.status });
