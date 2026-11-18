@@ -71,7 +71,7 @@ describe('Night Star Express guest adapter', () => {
     });
     expect(parseNightStar(delivered, NUMBER)).toMatchObject({ current_stage: 'delivered', delivered_at: '2026-03-03T05:12:00+01:00', last_status_text: 'Synthetic delivered' });
     const cancelled = changed(d => { d[0].colis[0].status = 'CANCELLED'; });
-    expect(parseNightStar(cancelled, NUMBER)).toMatchObject({ current_stage: 'exception', last_status_text: 'Out for delivery' });
+    expect(parseNightStar(cancelled, NUMBER)).toMatchObject({ current_stage: 'exception', last_status_text: 'Canceled' });
     const unlisted = changed(d => { d[0].colis[0].status = 'SYNTHETIC_NEW'; });
     expect(parseNightStar(unlisted, NUMBER)).toMatchObject({ current_stage: 'out_for_delivery' });
   });
@@ -99,7 +99,7 @@ describe('Night Star Express guest adapter', () => {
     expect(parseNightStar(data, 'ALT0000000001')).toMatchObject({ current_stage: 'out_for_delivery', events: expect.objectContaining({ length: 4 }) });
     // One package still on its way keeps the shipment undelivered; shared scans are listed once.
     const whole = parseNightStar(data, NUMBER);
-    expect(whole).toMatchObject({ current_stage: 'out_for_delivery', last_status_text: 'Synthetic delivered', service_name: 'Synthetic Night' });
+    expect(whole).toMatchObject({ current_stage: 'out_for_delivery', last_status_text: 'Out for delivery', service_name: 'Synthetic Night' });
     expect(whole.delivered_at).toBeUndefined();
     expect(whole.events).toHaveLength(5);
     const both = second(item => { item.status = 'DELIVERED'; });

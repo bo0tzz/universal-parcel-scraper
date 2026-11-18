@@ -90,9 +90,11 @@ export function parseBypost(payload: unknown, rawNumber: string): CarrierResult 
   // Several packages are delivered once each one is; until then the shipment is where its
   // least advanced package's newest scan left it.
   const waiting = read.filter(({ stage }) => stage !== 'delivered');
-  const scanned = read.length > 1 && waiting.length < read.length && waiting.length
-    ? waiting.flatMap(({ scans }) => scans).sort((left, right) => right.at - left.at).find(({ event }) => event.stage)?.event.stage as Stage | undefined
-    : events.find(event => event.stage)?.stage as Stage | undefined;
+  const partial = waiting.length > 0 && waiting.length < read.length;
+  const deciding = partial
+    ? waiting.flatMap(({ scans }) => scans).sort((left, right) => right.at - left.at).find(({ event }) => event.stage)?.event
+    : events.find(event => event.stage);
+  const scanned = deciding?.stage as Stage | undefined;
   const declared = status ? bypostCode(status)?.stage : undefined;
   // A cancelled shipment is stopped whatever its scans say. No event states an exception ("Avvik"),
   // so the shipment's is newer than its scans, unless they end in a delivery or a return.
@@ -128,7 +130,7 @@ export function parseBypost(payload: unknown, rawNumber: string): CarrierResult 
   return {
     status: stage ? languageStageStatus(stage) : 'unknown',
     ...(stage ? { current_stage: stage, current_stage_source: 'carrier_map' } : {}),
-    last_status_text: stopped ? SHIPMENT_NOTES[stopped]! : events[0]!.description!,
+    last_status_text: stopped ? SHIPMENT_NOTES[stopped]! : partial ? deciding?.description ?? note : events[0]!.description!,
     last_update: events[0]!.time ?? null,
     ...extras,
     ...(delivered ? { delivered_at: delivered.time } : {}),
