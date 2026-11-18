@@ -173,3 +173,8 @@ describe('HRX guest adapter', () => {
     for (const number of ['ABC12345', 'abc-123_45', '1234567890123']) expect(normalizeHrxNumber(` ${number} `)).toBe(number);
   });
 });
+
+it('completes a return only at the returned scan', () => {
+  expect(hrxEvent('customer_returned')?.stage).toBe('exception');
+  expect(hrxEvent('returned')?.stage).toBe('returned');
+});

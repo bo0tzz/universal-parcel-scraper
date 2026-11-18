@@ -31,7 +31,7 @@ export const MANDAE_ORDER_STATES: Readonly<Record<string, Stage>> = {
   Enviada: 'in_transit',
   AguardandoRetiradaDestinatario: 'ready_for_pickup',
   Entregue: 'delivered',
-  EmDevolucao: 'returned',
+  EmDevolucao: 'exception',
   Devolvida: 'returned',
   DevolvidaParaRemetente: 'returned',
   NaoColetada: 'exception',

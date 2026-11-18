@@ -81,8 +81,8 @@ tracking page shows them in the visitor's zone like Hermes's own.
   a return delivered to the sender, which stays returned.
 - A parcel abroad its recipient did not collect from the parcel shop
   (`INTERNATIONAL_PUDO_NOT_COLLECTED`) goes back to the sender. A later
-  `INTERNATIONAL_DELIVERED` is its hand-over on that way, so it reads as
-  returned rather than delivered.
+  `INTERNATIONAL_DELIVERED` records a hand-over on that return journey. The shipment stays
+  at the exception stage until the sender receives it.
 - Abroad, a partner such as PostNord, InPost or Correos delivers the parcel.
   The tracking page links the partner's tracking page as the international
   delivery partner (`viewParameters.internationalTrackingLink`). When the

@@ -78,7 +78,7 @@ describe('Amazon shared tracking pages', () => {
 
   it("lets an exception override the status, and the milestone stand in when Amazon has no news", () => {
     expect(parse('refused', 'co.jp')).toMatchObject({
-      status: 'exception', current_stage: 'returned', provider_code: 'REFUSED_BY_CUSTOMER', last_status_text: 'Cancelled',
+      status: 'exception', current_stage: 'exception', provider_code: 'REFUSED_BY_CUSTOMER', last_status_text: 'Cancelled',
     });
     expect(parse('no-information', 'com')).toMatchObject({
       current_stage: 'in_transit', provider_code: 'NO_INFORMATION_AVAILABLE', last_status_text: 'Now arriving tomorrow',

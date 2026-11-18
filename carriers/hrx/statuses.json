@@ -81,7 +81,7 @@
     {
       "code": "customer_returned",
       "wording": "Parcel is being returned",
-      "stage": "returned",
+      "stage": "exception",
       "language": "en",
       "confirmedBy": "source"
     },

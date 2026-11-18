@@ -88,12 +88,12 @@ export const STATUSES: Record<string, Milestone> = {
   INTERNATIONAL_UNDELIVERABLE: milestone('exception', 'exception', 'Shipment not deliverable'),
   NOT_DELIVERABLE: milestone('exception', 'exception', 'Shipment not deliverable'),
   UNKNOWN_WHEREABOUTS: milestone('exception', 'exception', 'Shipment whereabouts unknown'),
-  RETURN_TO_SENDER: milestone('returned', 'exception', 'Returning to sender'),
+  RETURN_TO_SENDER: milestone('exception', 'exception', 'Returning to sender'),
   RETURN_DELIVERED_TO_SENDER: milestone('returned', 'exception', 'Returned to sender'),
-  RETURN: milestone('returned', 'exception', 'Returning to sender'),
+  RETURN: milestone('exception', 'exception', 'Returning to sender'),
   RETOURE_DELIVERED: milestone('returned', 'exception', 'Returned to sender'),
   // The return prepared at a hub for its way back, "Die Retoure wurde in … für den Weiterversand vorbereitet".
-  RETOURE_SORTED: milestone('returned', 'exception', 'Return sorted on its way to the sender'),
+  RETOURE_SORTED: milestone('exception', 'exception', 'Return sorted on its way to the sender'),
 };
 
 // Delivery preference bookings (a safe place, a ParcelShop, a delivery day) record the
@@ -106,7 +106,7 @@ export const IGNORED_BOOKING_STATUS = new Set(['EDL_BOOKED_DROPOFF', 'EDL_BOOKED
  */
 export const NOT_COLLECTED_ABROAD = 'INTERNATIONAL_PUDO_NOT_COLLECTED';
 export const DELIVERED_ABROAD = 'INTERNATIONAL_DELIVERED';
-export const RETURN_HANDOVER = milestone('returned', 'exception', 'Returning to sender');
+export const RETURN_HANDOVER = milestone('exception', 'exception', 'Returning to sender');
 
 /** The code for a parcel put into a Hermes Box, which waits there for its recipient. */
 export const IN_PARCELBOX = 'DELIVERED_PARCELBOX';

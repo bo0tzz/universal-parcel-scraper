@@ -53,6 +53,7 @@ describe('Mandaê parser', () => {
   });
 
   it('lets a finished or troubled order state lead, and the scans otherwise', () => {
+    expect(parseMandae({ ...jtHub, situacaoEncomenda: 'EmDevolucao' }, NUMBER).current_stage).toBe('exception');
     expect(parseMandae({ ...jtHub, situacaoEncomenda: 'DevolvidaParaRemetente' }, NUMBER)).toMatchObject({ status: 'exception',
       current_stage: 'returned', current_stage_source: 'carrier_map', last_status_text: 'Devolvida para remetente' });
     const onTheWay = { ...jtHub, situacaoEncomenda: 'Enviada', historico: scans.slice(1) };
